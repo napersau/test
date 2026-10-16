@@ -1,0 +1,30 @@
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import App from '../../App';
+import { authenticate } from '../../features/auth/authStorage';
+import { loadDemoDataset, extendDemoDataset } from '../../features/demo/demoRepository';
+import { listAdminCare } from '../../features/reports/adminCareRepository';
+import { buildReport } from '../../features/reports/reportPolicy';
+import { money } from '../../features/catalog/catalogPolicy';
+beforeEach(() => { localStorage.clear(); sessionStorage.clear(); authenticate('admin@admin', '123456', true); loadDemoDataset('admin-default'); extendDemoDataset('admin-default'); });
+test('staff directory filters role/status/search and links to existing account editor', async () => {
+  window.history.replaceState({}, '', '/admin/staff'); render(<App />);
+  fireEvent.change(await screen.findByLabelText('Vai trò nhân sự'), { target: { value: 'RECEPTIONIST' } });
+  fireEvent.change(screen.getByLabelText('Trạng thái nhân sự'), { target: { value: 'INACTIVE' } });
+  expect(screen.getByText(/demo\.reception2@pawcare\.vn/)).toBeInTheDocument(); expect(screen.getAllByRole('link', { name: 'Sửa / khóa tài khoản →' })).toHaveLength(1);
+  expect(screen.getByRole('link', { name: 'Sửa / khóa tài khoản →' })).toHaveAttribute('href', '/admin/users?search=demo.reception2%40pawcare.vn');
+  expect(screen.getByText(/Lễ tân tiếp đón, điều phối hàng đợi/)).toBeInTheDocument();
+  expect(screen.queryByText(/Ca chiều minh họa|Ghi chú ca|Chuyên môn \/ bộ phận/)).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Tìm nhân viên bác sĩ'), { target: { value: 'khong-tim-thay' } });
+  expect(screen.getByRole('heading', { name: 'Không có nhân sự phù hợp' })).toBeInTheDocument();
+});
+test('reports render derived care totals/charts and filter transactions to an empty period', async () => {
+  window.history.replaceState({}, '', '/admin/reports?from=2026-09-01&to=2026-10-04'); render(<App />);
+  const expected = buildReport({ users: [], services: [], medicines: [], activity: [], care: listAdminCare('admin-default') }, '2026-09-01', '2026-10-04');
+  await screen.findByRole('heading', { name: 'Khám bệnh & thu chi demo trong kỳ' });
+  expect(within(screen.getByRole('group', { name: 'Đã thu trong kỳ' })).getByText(money(expected.receipts), { normalizer: (value) => value })).toBeInTheDocument();
+  expect(within(screen.getByRole('group', { name: 'Lần khám đã hoàn tất' })).getByText(String(expected.visitCount))).toBeInTheDocument();
+  expect(screen.getByRole('img', { name: /Biểu đồ tiền thu và tiền hoàn/ })).toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Đến ngày'), { target: { value: '2099-01-01' } }); fireEvent.change(screen.getByLabelText('Từ ngày'), { target: { value: '2099-01-01' } });
+  expect(within(screen.getByRole('group', { name: 'Đã thu trong kỳ' })).getByText(money(0), { normalizer: (value) => value })).toBeInTheDocument();
+  expect(screen.getByText('Chưa có dòng dịch vụ phù hợp trong kỳ.')).toBeInTheDocument();
+});

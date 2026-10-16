@@ -1,0 +1,13 @@
+.care-slot-picker { display: grid; gap: 10px; }
+.care-slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.care-slot { display: grid; gap: 2px; padding: 10px 12px; border: 1.5px solid #cfe4d6; border-radius: 12px; background: #f1faf4; color: #1f5a37; text-align: left; cursor: pointer; font: inherit; }
+.care-slot small { font-size: 12px; font-weight: 600; }
+.care-slot:hover:not(:disabled) { border-color: #2f8f5b; }
+.care-slot.selected { border-color: #2f8f5b; background: #2f8f5b; color: #fff; }
+.care-slot:disabled { background: #eceaea; border-color: #dcd8d8; color: #8b8386; cursor: not-allowed; }
+.care-slot:focus-visible { outline: 3px solid #1e5fa8; outline-offset: 2px; }
+/* Trong bảng điều khiển nhân viên dùng token màu của console */
+.reception-shell .care-slot { border-color: var(--admin-border); background: var(--admin-success-soft); color: var(--admin-success); }
+.reception-shell .care-slot.selected { border-color: var(--admin-brand-ink); background: var(--admin-brand); color: #fff; }
+.reception-shell .care-slot:disabled { background: var(--admin-raised); border-color: var(--admin-border); color: var(--admin-muted); }
+.reception-shell .care-note { color: var(--admin-muted); font-size: 13px; }

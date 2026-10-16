@@ -1,0 +1,46 @@
+.staff-date-input { min-width: 0; border: 1px solid var(--admin-input-border); border-radius: 8px; padding: 10px; background: var(--admin-surface); color: var(--admin-text); }
+.billing-section { margin-bottom: 26px; }
+.billing-stats strong { font-size: clamp(18px, 2vw, 25px); overflow-wrap: anywhere; }
+.billing-action-link { color: var(--admin-brand-ink) !important; white-space: nowrap; }
+.billing-issue-total { margin-top: 24px; font-size: 16px; text-align: right; }
+.staff-invoice-page .invoice-lines, .staff-invoice-page .care-record-section { padding: 24px; margin-bottom: 24px; border: 1px solid var(--admin-border); background: var(--admin-surface); box-shadow: none; border-radius: 16px; color: var(--admin-text); }
+.staff-invoice-page h2 { font-size: 20px; margin: 0 0 14px; font-weight: 500; }
+.staff-invoice-page .care-note { font-size: 13px; line-height: 1.8; color: var(--admin-muted); }
+.staff-invoice-page .invoice-table-wrap { overflow-x: auto; border-color: var(--admin-border); }
+.staff-invoice-page .invoice-table-wrap table { width: 100%; min-width: 550px; border-collapse: collapse; font-size: 13px; }
+.staff-invoice-page .invoice-table-wrap :is(td, th) { padding: 14px; border-top: 1px solid var(--admin-border); border-bottom: 1px solid var(--admin-border); text-align: left; color: var(--admin-text); background: transparent; }
+.staff-invoice-page .invoice-table-wrap caption { text-align: left; color: var(--admin-muted); padding: 10px 0; }
+.staff-invoice-page .invoice-totals { margin: 22px 0 0 auto; max-width: 430px; }
+.staff-invoice-page .invoice-totals > div, .staff-invoice-page .invoice-payment { display: flex; justify-content: space-between; gap: 18px; padding: 12px 0; border-bottom: 1px solid var(--admin-border); color: var(--admin-secondary); }
+.staff-invoice-page .invoice-totals dd { margin: 0; font-weight: 600; }
+.staff-invoice-page .invoice-totals > div:last-child { border-top-color: var(--admin-border); color: var(--admin-brand-ink); }
+.staff-invoice-page .invoice-payment { border-top-color: var(--admin-border); }
+.staff-invoice-page .invoice-payment p { color: var(--admin-muted); font-size: 12px; }
+.billing-print-note { color: var(--admin-muted); font-size: 12px; line-height: 1.8; }
+@media (max-width: 767px) { .staff-invoice-page .invoice-lines, .staff-invoice-page .care-record-section { padding: 18px; } }
+@media print {
+  .reception-shell:has(.staff-invoice-page) { color-scheme: light; --admin-text: #111; --admin-secondary: #333; --admin-muted: #444; --admin-border: #ccc; --admin-surface: white; background: white; color: #111; }
+  .reception-shell:has(.staff-invoice-page) :is(.admin-sidebar, .admin-topbar, .admin-footer, .admin-breadcrumb, .reception-back, .reception-heading-actions, .admin-alert, .admin-skip-link, dialog) { display: none !important; }
+  .reception-shell:has(.staff-invoice-page) .admin-workspace { margin-left: 0; }
+  .reception-shell:has(.staff-invoice-page) .admin-main { padding: 0; }
+  .staff-invoice-page .invoice-table-wrap { overflow: visible; }
+  .staff-invoice-page .invoice-table-wrap table { min-width: 0; }
+  .staff-invoice-page .invoice-table-wrap thead { display: table-header-group; }
+  .staff-invoice-page tr, .staff-invoice-page .invoice-payment { break-inside: avoid; }
+  .staff-invoice-page :is(.invoice-lines, .care-record-section, .reception-detail-panel) { box-shadow: none; border-radius: 0; }
+}
+
+.fake-qr { margin: 0; display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; padding: 14px; border: 1px dashed var(--admin-input-border); border-radius: 12px; }
+.fake-qr svg { width: 150px; height: 150px; border-radius: 8px; }
+.fake-qr figcaption { display: grid; gap: 6px; font-size: 13px; overflow-wrap: anywhere; }
+.fake-qr figcaption strong { font-size: 20px; }
+.fake-qr small { color: var(--admin-muted); }
+.invoice-discount { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-top: 18px; }
+.invoice-discount .admin-field { flex: 1 1 220px; margin: 0; }
+.billing-tabs { padding: 0 24px 20px; }
+@media (max-width: 480px) { .fake-qr { grid-template-columns: 1fr; justify-items: center; } }
+.dispense-table { min-width: 560px; }
+@media print {
+  dialog.print-slip-modal .admin-table-scroll { overflow: visible; }
+  dialog.print-slip-modal .dispense-table { min-width: 0; color: #111; }
+}

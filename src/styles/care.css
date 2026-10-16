@@ -1,0 +1,57 @@
+/* Shared customer booking, appointment and clinical-history surfaces. */
+.care-page { padding: 32px 0 76px; }
+.care-heading { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 28px; }
+.care-heading > div { min-width: 0; }
+.care-heading h1 { font-size: clamp(29px, 3.6vw, 42px); margin: 10px 0 12px; letter-spacing: -1px; overflow-wrap: anywhere; }
+.care-heading p, .care-note { color: #74606b; font-size: 13px; line-height: 1.8; }
+.care-heading p { margin: 0; max-width: 690px; }
+.care-heading > .pet-button { flex-shrink: 0; }
+.care-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; padding: 0; list-style: none; margin: 0 0 26px; }
+.care-steps li { display: flex; gap: 10px; align-items: center; padding: 12px; border-radius: 12px; background: #f0e9e5; color: #796a73; font-size: 12px; font-weight: 700; }
+.care-steps li > span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+.care-steps .current { background: #ffe2cd; color: #99401e; outline: 2px solid #d8855b; }
+.care-steps .done { background: #e5f2e7; color: #356448; }
+.care-booking-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.care-booking-panel, .care-summary, .care-record-section { padding: 28px; }
+.care-booking-panel h2, .care-summary h2, .care-record-section h2 { font-size: 22px; margin: 0 0 20px; }
+.care-booking-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.care-booking-form .pet-field { margin-bottom: 20px; }
+.care-booking-form p { font-size: 13px; line-height: 1.8; color: #74606b; }
+.care-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.care-selected-pet { display: flex; align-items: center; gap: 18px; padding: 18px; background: #fff1e7; border-radius: 16px; }
+.care-selected-pet .customer-pet-avatar { width: 90px; height: 90px; flex-shrink: 0; border-radius: 16px; border: 2px solid #dcb9a3; }
+.care-selected-pet .customer-pet-avatar > span { font-size: 42px; }
+.care-selected-pet p { margin: 5px 0; }
+.care-selected-pet a { color: #a04420; font-size: 12px; }
+.care-summary { background: #fff0df; }
+.care-summary p, .care-booking-success > p { font-size: 13px; line-height: 1.8; color: #74606b; }
+.care-summary hr { border: 0; border-top: 1px solid #e8ccb8; margin: 22px 0; }
+.care-calendar-icon { display: grid; place-items: center; width: 60px; height: 60px; font-size: 36px; color: #a34b25; background: #ffd4b4; border: 2px solid #a76b48; border-radius: 16px; margin-bottom: 22px; }
+.care-price { display: block; font-size: 23px; color: #a64723; }
+.care-summary a { color: #904121; font-size: 12px; font-weight: 700; }
+.care-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 24px; }
+.care-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 24px 0; }
+.care-facts > div { min-width: 0; }.care-facts dt { font-size: 12px; color: #7b6873; margin-bottom: 8px; }.care-facts dd { margin: 0; font-size: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.care-fact-wide { grid-column: 1 / -1; }
+.care-confirm { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.7; }.care-confirm input { margin-top: 5px; accent-color: #a44927; }
+.care-status { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 6px 10px; border: 1px solid; border-radius: 999px; width: fit-content; }
+.care-status.amber { color: #865414; background: #fff3cf; border-color: #dfc281; }.care-status.blue { color: #305c80; background: #e9f2fb; border-color: #adc6db; }.care-status.green { color: #296849; background: #ecfaef; border-color: #a9d2b8; }.care-status.gray { color: #6d5d70; background: #f0ebf2; border-color: #d5c8db; }
+.care-booking-success { padding: 40px; max-width: 760px; margin: 0 auto; }.care-booking-success h2 { font-size: 28px; }.care-success-icon { display: grid; place-items: center; width: 66px; height: 66px; border-radius: 50%; font-size: 32px; color: #296849; background: #e1f2e4; border: 2px solid #448866; }
+.care-empty > span { font-size: 54px; color: #bb643f; }
+.care-list-toolbar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; }
+.care-list-toolbar select, .care-history-filters select, .care-history-filters input[type=date] { min-height: 46px; border: 2px solid #e2d2c9; border-radius: 12px; padding: 8px 12px; color: #6b5964; background: #fff; font-size: 13px; min-width: 0; max-width: 100%; }
+.care-appointment-list { display: grid; gap: 20px; }.care-appointment-card { display: grid; grid-template-columns: 210px minmax(0, 1fr); overflow: hidden; }
+.care-appointment-date { display: flex; flex-direction: column; justify-content: center; gap: 12px; background: #fff0e0; border-right: 1px solid #ead5c6; padding: 24px; }.care-appointment-date > span { font-size: 32px; color: #ac572e; }.care-appointment-date strong { font-size: 17px; line-height: 1.6; }.care-appointment-date small { font-size: 11px; color: #7d655c; }
+.care-appointment-body { padding: 24px; }.care-card-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }.care-code { color: #8d6554; font-size: 11px; font-weight: 700; overflow-wrap: anywhere; }.care-appointment-body h2 { margin: 14px 0 8px; font-size: 25px; overflow-wrap: anywhere; }.care-appointment-body p { margin: 6px 0; font-size: 13px; }
+.care-dialog { padding: 8px 24px 24px; }.care-dialog .care-facts { margin-top: 20px; }.care-dialog form { border-top: 1px solid #e7d7cb; padding-top: 22px; }
+.care-history-summary { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 22px; border: 2px solid #e8d3c6; border-radius: 18px; background: #fff0e4; margin-bottom: 24px; }.care-history-summary strong { font-size: 26px; color: #9c4828; }.care-history-summary span { font-size: 12px; color: #79636b; margin-right: 18px; }
+.care-history-filters { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin-bottom: 26px; }.care-history-filters .pet-search { align-self: end; }.care-history-filters > label:not(.pet-search) { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #78646f; }
+.care-history-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }.care-history-card { padding: 26px; }.care-history-card h2 { font-size: 27px; margin: 12px 0; overflow-wrap: anywhere; }.care-history-card h3, .care-result h3, .care-prescriptions h3 { font-size: 14px; margin: 20px 0 10px; }.care-history-card p { font-size: 13px; line-height: 1.8; }.care-diagnosis { white-space: pre-wrap; overflow-wrap: anywhere; }
+.care-record-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }.care-record-wide { grid-column: 1 / -1; }.care-result { padding-top: 4px; border-top: 1px solid #eadad0; }.care-result p, .care-record-section > p { font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }.care-prescriptions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+@media (max-width: 850px) { .care-booking-grid { grid-template-columns: 1fr; }.care-summary { order: 1; }.care-steps { gap: 8px; }.care-steps li { flex-direction: column; text-align: center; }.care-heading { align-items: flex-start; } }
+@media (max-width: 600px) { .care-page { padding-top: 28px; }.care-heading { flex-direction: column; gap: 18px; }.care-steps { grid-template-columns: 1fr 1fr; gap: 10px; }.care-steps li { flex-direction: row; text-align: left; padding: 10px; }.care-booking-panel, .care-summary, .care-record-section, .care-history-card, .care-booking-success { padding: 22px 18px; }.care-field-grid, .care-facts, .care-history-list, .care-record-grid, .care-prescriptions { grid-template-columns: 1fr; }.care-appointment-card { grid-template-columns: 1fr; }.care-appointment-date { padding: 18px; border-right: 0; border-bottom: 1px solid #ead5c6; gap: 6px; }.care-appointment-date > span { display: none; }.care-appointment-body { padding: 20px 18px; }.care-history-filters .pet-search { flex-basis: 100%; min-width: 0; }.care-history-filters > label:not(.pet-search) { flex: 1; min-width: 130px; }.care-actions { gap: 8px; }.care-dialog { padding: 6px 16px 20px; }.care-selected-pet { padding: 12px; gap: 12px; }.care-selected-pet .customer-pet-avatar { width: 74px; height: 74px; } }
+
+/* Lưới khung giờ đặt lịch (14 khung 30 phút, sức chứa theo số bác sĩ) */
+.care-reason-select { width: 100%; }
+.care-result-images { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.care-result-images img { border-radius: 10px; border: 1px solid #ddd3d6; max-width: 100%; height: auto; }

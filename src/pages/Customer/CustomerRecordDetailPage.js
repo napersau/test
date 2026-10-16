@@ -1,0 +1,24 @@
+import { Link, useParams } from 'react-router-dom';
+import CustomerLayout from '../../layouts/CustomerLayout';
+import { CareEmpty, CareHeading, CareState } from '../../components/customer/CareUI';
+import { CustomerRecordBadge } from '../../components/customer/CustomerRecordCard';
+import InvoiceDetail from '../../components/customer/InvoiceDetail';
+import useCustomerData from '../../features/customer/useCustomerData';
+import { CUSTOMER_RECORD_CONFIG } from '../../features/customerRecords/recordConfig';
+import { calendarDate } from '../../features/catalog/catalogPolicy';
+import { appointmentDateTime } from '../../features/appointments/appointmentPolicy';
+import '../../styles/pets.css';
+import '../../styles/care.css';
+import '../../styles/customer-records.css';
+
+export default function CustomerRecordDetailPage({ kind }) {
+  const config = CUSTOMER_RECORD_CONFIG[kind]; const { recordId } = useParams(); const { data, loading, error, refresh } = useCustomerData(config.reader, config.events);
+  const record = data?.find((item) => item.id === recordId);
+  return <CustomerLayout><main className={`care-page customer-record-detail detail-${kind}`}><div className="profile-container"><Link className="pet-back-link record-no-print" to={config.route}>← {config.title}</Link><CareState loading={loading} error={error} refresh={refresh}>{!record ? <CareEmpty title="Không tìm thấy dữ liệu" booking={false}>Dữ liệu không tồn tại, chưa được cung cấp hoặc không thuộc thú cưng của bạn.</CareEmpty> : <>
+    <CareHeading eyebrow={config.eyebrow} title={kind === 'vaccinations' ? record.vaccineName : kind === 'prescriptions' ? `Đơn thuốc · ${record.petName}` : `Hóa đơn ${record.code}`} action={kind === 'invoices' ? <button type="button" className="pet-button secondary record-no-print" onClick={() => window.print()}>In hóa đơn</button> : null}>{record.petName}{kind !== 'vaccinations' ? ` · ${appointmentDateTime(record.issuedAt)}` : record.doseLabel ? ` · ${record.doseLabel}` : ''}</CareHeading>
+    <div className="record-detail-badge"><CustomerRecordBadge kind={kind} status={record.status} /></div>
+    {kind === 'vaccinations' && <section className="pet-panel care-record-section"><h2>Thông tin lịch / mũi tiêm</h2><dl className="care-facts"><div><dt>Ngày dự kiến</dt><dd>{calendarDate(record.dueDate)}</dd></div><div><dt>Thời điểm đã tiêm</dt><dd>{record.administeredAt ? appointmentDateTime(record.administeredAt) : 'Chưa được ghi nhận đã tiêm'}</dd></div><div><dt>Bác sĩ ghi nhận</dt><dd>{record.doctorName || 'Chưa được cung cấp'}</dd></div><div><dt>Cơ sở tiêm</dt><dd>{record.clinicName || 'Chưa được cung cấp'}</dd></div><div className="care-fact-wide"><dt>Lưu ý từ phòng khám</dt><dd>{record.customerNotes || 'Không có lưu ý được cung cấp.'}</dd></div></dl><p className="care-note">Khách hàng chỉ theo dõi; không tự thay ngày chỉ định hay xác nhận mũi đã tiêm tại đây.</p><div className="care-actions record-no-print"><Link className="pet-button secondary" to={`/portal/pets/${encodeURIComponent(record.petId)}`}>Hồ sơ thú cưng</Link>{!['COMPLETED', 'CANCELLED'].includes(record.status) && <Link className="pet-button primary" to={`/portal/booking?petId=${encodeURIComponent(record.petId)}`}>Đặt lịch khám</Link>}</div></section>}
+    {kind === 'prescriptions' && <><section className="pet-panel care-record-section"><h2>Thông tin đơn theo lần khám</h2><dl className="care-facts"><div><dt>Bác sĩ</dt><dd>{record.doctorName}</dd></div><div><dt>Ngày kê theo hồ sơ khám</dt><dd>{appointmentDateTime(record.issuedAt)}</dd></div><div className="care-fact-wide"><dt>Chẩn đoán đã cung cấp</dt><dd>{record.diagnosis}</dd></div><div className="care-fact-wide"><dt>Dặn dò</dt><dd>{record.instructions || 'Không có dặn dò được cung cấp.'}</dd></div></dl><Link className="pet-button secondary record-no-print" to={`/portal/medical-history/${encodeURIComponent(record.id)}`}>Xem lần khám liên quan</Link></section><section className="pet-panel care-record-section prescription-items"><h2>Thuốc được kê</h2>{record.items.map((item) => <article key={item.id} className="prescription-item"><h3>{item.medicineName}</h3><dl className="care-facts"><div><dt>Liều dùng</dt><dd>{item.dosage || 'Chưa được cung cấp'}</dd></div><div><dt>Tần suất</dt><dd>{item.frequency || 'Chưa được cung cấp'}</dd></div><div><dt>Thời gian dùng</dt><dd>{item.duration || 'Chưa được cung cấp'}</dd></div><div><dt>Số lượng được kê</dt><dd>{item.quantity === null ? 'Chưa được cung cấp' : `${item.quantity}${item.unit ? ` ${item.unit}` : ''}`}</dd></div><div className="care-fact-wide"><dt>Hướng dẫn của bác sĩ</dt><dd>{item.instructions || 'Chưa được cung cấp'}</dd></div></dl></article>)}<p className="care-note">Đơn kê không làm giảm tồn kho và không xác nhận thuốc đã được cấp hoặc thanh toán. Các hướng dẫn thiếu dữ liệu không được tự suy ra.</p></section></>}
+    {kind === 'invoices' && <InvoiceDetail invoice={record} />}
+    </>}</CareState></div></main></CustomerLayout>;
+}

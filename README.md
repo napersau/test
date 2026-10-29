@@ -7,6 +7,9 @@ docker image prune -f
 docker builder prune -af
 
 # 3. Build lại không dùng cache rồi chạy
+<br/>
 docker compose build --no-cache
+<br/>
 docker compose up -d
+<br/>
 docker compose ps 

@@ -51,11 +51,12 @@ wait_status() { # visitId expected maxSeconds
 }
 
 echo "== Don du lieu thu nghiem cu =="
+bash "$(dirname "$0")/reset_data.sh" >/dev/null 2>&1
 sql "DELETE FROM pet_clinic_clinical_db.imaging_attachments; DELETE FROM pet_clinic_clinical_db.imaging_results; DELETE FROM pet_clinic_clinical_db.lab_test_results; DELETE FROM pet_clinic_clinical_db.visit_service_detail_histories; DELETE FROM pet_clinic_clinical_db.visit_service_details; DELETE FROM pet_clinic_clinical_db.pet_visit_status_histories; DELETE FROM pet_clinic_clinical_db.pet_visits; DELETE FROM pet_clinic_clinical_db.pets; DELETE FROM pet_clinic_appointment_db.appointment_status_histories; DELETE FROM pet_clinic_appointment_db.appointments; DELETE FROM pet_clinic_auth_db.refresh_tokens; DELETE FROM pet_clinic_auth_db.users WHERE id > 1; ALTER TABLE pet_clinic_clinical_db.pets AUTO_INCREMENT = 1; ALTER TABLE pet_clinic_clinical_db.pet_visits AUTO_INCREMENT = 1; ALTER TABLE pet_clinic_auth_db.users AUTO_INCREMENT = 2; UPDATE pet_clinic_clinical_db.services SET price = 250000.00 WHERE code='LAB_CBC';"
 for q in appointment-service.visit.checked_in.dlq clinical-service.payment.completed.dlq; do
   docker compose exec -T api-gateway sh -c "curl -s -o /dev/null -u '$RABBITMQ_USERNAME:$RABBITMQ_PASSWORD' -X DELETE http://rabbitmq-broker:15672/api/queues/%2F/$q/contents"; done
 
-docker compose exec -T clinical-service sh -c 'rm -rf /app/uploads/imaging/*'
+docker compose exec -T clinical-service sh -c 'find /app/uploads/imaging -mindepth 1 -maxdepth 1 ! -name seed -exec rm -rf {} +'
 ADMIN=$(login admin 'Admin@123')
 echo "== Chuan bi tai khoan =="
 mkuser '{"username":"letan1","password":"LeTan@123","fullName":"Le Tan 1","phoneNumber":"0933333333","roleCode":"RECEPTIONIST"}' >/dev/null
@@ -242,11 +243,11 @@ check "tep gia mao (noi dung van ban, khai bao image/jpeg) -> CLIN_1314" "CLIN_1
 check "loai tep khong cho phep -> CLIN_1314" "CLIN_1314" "$(img_upload $IMG_A "$TMP/ok.jpg" "Mo ta" "application/pdf" | code)"
 check "thieu mo ta -> SYS_1001" "SYS_1001" "$(curl -s -X POST "$G/api/v1/clinical/service-details/$IMG_A/imaging-result" -H "Authorization: Bearer $IMG" -F "conclusion=KL" -F "files=@$TMP/ok.jpg;type=image/jpeg" | code)"
 check "bac si khong tai duoc ket qua CDHA -> 403" "SYS_1003" "$(curl -s -X POST "$G/api/v1/clinical/service-details/$IMG_A/imaging-result" -H "Authorization: Bearer $TA" -F "description=a" -F "conclusion=b" -F "files=@$TMP/ok.jpg;type=image/jpeg" | code)"
-check "chua co tep nao duoc luu sau cac lan that bai" "0" "$(docker compose exec -T clinical-service sh -c 'find /app/uploads/imaging -type f 2>/dev/null | wc -l' | tr -d '[:space:]')"
+check "chua co tep nao duoc luu sau cac lan that bai" "0" "$(docker compose exec -T clinical-service sh -c 'find /app/uploads/imaging -path /app/uploads/imaging/seed -prune -o -type f -print 2>/dev/null | wc -l' | tr -d '[:space:]')"
 R=$(curl -s -X POST "$G/api/v1/clinical/service-details/$IMG_A/imaging-result" -H "Authorization: Bearer $IMG" -F "description=Gan to nhe" -F "conclusion=Nghi viem gan" -F "files=@$TMP/ok.jpg;type=image/jpeg" -F "files=@$TMP/ok.png;type=image/png")
 check "luu ket qua CDHA kem 2 anh -> COMPLETED" "COMPLETED" "$(echo "$R" | jget "['data']['status']")"
 check "DA CO DU KET QUA: ca A chuyen sang RESULTS_READY" "RESULTS_READY" "$(vstatus $VA)"
-check "2 tep anh nam tren dia (Docker volume)" "2" "$(docker compose exec -T clinical-service sh -c 'find /app/uploads/imaging -type f | wc -l' | tr -d '[:space:]')"
+check "2 tep anh nam tren dia (Docker volume)" "2" "$(docker compose exec -T clinical-service sh -c 'find /app/uploads/imaging -path /app/uploads/imaging/seed -prune -o -type f -print | wc -l' | tr -d '[:space:]')"
 DET=$(getauth $V/$VA "$T1")
 check "chu nuoi 1 xem duoc benh an: co 2 anh dinh kem" "2" "$(echo "$DET" | jget "['data']['imagingResults'][0]['attachments'].__len__()")"
 ATT=$(echo "$DET" | jget "['data']['imagingResults'][0]['attachments'][0]['id']")

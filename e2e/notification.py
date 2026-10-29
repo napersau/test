@@ -167,6 +167,7 @@ async def wait_for(predicate, timeout=15):
 async def main():
     BDB, CDB = "pet_clinic_billing_pharmacy_db", "pet_clinic_clinical_db"
     print("== Don du lieu thu nghiem cu ==")
+    subprocess.run(["bash", os.path.join(os.path.dirname(os.path.abspath(__file__)), "reset_data.sh")], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     sql(f"DELETE FROM {BDB}.inventory_transactions; DELETE FROM {BDB}.invoice_items; DELETE FROM {BDB}.invoices; DELETE FROM {BDB}.prescription_items; DELETE FROM {BDB}.prescriptions;"
         f"DELETE FROM {CDB}.imaging_attachments; DELETE FROM {CDB}.imaging_results; DELETE FROM {CDB}.lab_test_results; DELETE FROM {CDB}.visit_service_detail_histories; DELETE FROM {CDB}.visit_service_details; DELETE FROM {CDB}.pet_visit_status_histories; DELETE FROM {CDB}.pet_visits; DELETE FROM {CDB}.pets;"
         "DELETE FROM pet_clinic_appointment_db.appointment_status_histories; DELETE FROM pet_clinic_appointment_db.appointments; DELETE FROM pet_clinic_auth_db.refresh_tokens; DELETE FROM pet_clinic_auth_db.users WHERE id > 1;"

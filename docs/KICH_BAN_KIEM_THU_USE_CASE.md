@@ -12,8 +12,16 @@
 cp .env.example .env                 # lần đầu, điền JWT_SECRET (openssl rand -hex 32)
 docker compose up -d --build
 docker compose ps                    # mọi container phải "healthy"
-bash e2e/reset_data.sh               # đưa dữ liệu về sạch (chỉ còn admin + dữ liệu mẫu)
 ```
+
+**Hai chế độ dữ liệu**
+
+| Chế độ | Cách có | Dùng khi |
+|---|---|---|
+| **Demo** (mặc định) | `docker compose down -v && docker compose up -d` (nạp `docs/schema_init.sql` PHẦN 5: 16 tài khoản, 16 thú cưng, 17 lịch hẹn, 20 đợt khám ở đủ trạng thái, 11 hóa đơn...) | Demo, và test hầu hết use case ở mục 3 đến 9 trên dữ liệu có sẵn (xem bản đồ ở mục 1.5) |
+| **Sạch** | `bash e2e/reset_data.sh` (xóa dữ liệu demo, chỉ còn `admin` và danh mục gốc: 2 loài, 7 dịch vụ, 4 thuốc, 4 chỉ số) | Chạy test tự động `e2e/`, hoặc muốn tự tạo mọi thứ từ đầu theo đúng thứ tự mục 3 đến 7 |
+
+Dữ liệu demo tính thời gian **tương đối so với lúc dựng DB** ("hôm nay" theo giờ VN). Hãy `down -v` rồi `up` ngay trước buổi demo để các lịch hẹn hôm nay và ngày mai còn hiệu lực.
 
 | Thành phần | Địa chỉ |
 |---|---|
@@ -36,11 +44,11 @@ bash e2e/reset_data.sh               # đưa dữ liệu về sạch (chỉ còn
 
 ## 1. Dữ liệu dùng để test
 
-### 1.1. Dữ liệu mẫu có sẵn sau khi dựng DB
+### 1.1. Danh mục gốc (luôn có, ở cả hai chế độ dữ liệu)
 
 | Loại | Dữ liệu |
 |---|---|
-| Tài khoản | `admin` / `Admin@123` (ADMIN, SĐT `0901234567`) |
+| Tài khoản gốc | `admin` / `Admin@123` (ADMIN, SĐT `0901234567`) |
 | Loài (`species`) | id 1 = `DOG` (Chó), id 2 = `CAT` (Mèo) |
 | Dịch vụ (`services`) | `EXAM_GEN` Khám tổng quát 100.000 · `VAC_7B` Vaccine 7 bệnh (chó) 150.000 · `VAC_4B` Vaccine 4 bệnh (mèo) 150.000 · `DEWORM` Tẩy giun 50.000 · `LAB_CBC` Xét nghiệm CBC 250.000 (LABORATORY) · `IMG_US_AB` Siêu âm ổ bụng 200.000 (IMAGING) · `IMG_XRAY` X-quang 180.000 (IMAGING) |
 | Chỉ số xét nghiệm | `WBC` (10^9/L), `RBC` (10^12/L), `HGB` (g/dL), `PLT` (10^9/L). Dịch vụ `LAB_CBC` gồm cả 4 chỉ số |
@@ -49,27 +57,73 @@ bash e2e/reset_data.sh               # đưa dữ liệu về sạch (chỉ còn
 | Thuốc (`medicines`) | `MED_AMOX` Clavamox 250mg: giá 15.000, tồn 200, ngưỡng cảnh báo 20 · `MED_VANG_7B` Vaccine Vanguard: 180.000, tồn 50, ngưỡng 10 · `MED_PURE_4B` Vaccine Purevax (mèo): 190.000, tồn 40, ngưỡng 10 · `MED_DRON_DOG` Drontal Plus: 45.000, tồn 100, ngưỡng 15 |
 | VAT | Mặc định 0% (chưa chốt tỉ lệ thực tế) nên `tổng = Σ thành tiền − chiết khấu` |
 
-### 1.2. Tài khoản cần tạo (Admin tạo, mục 3.7)
+### 1.2. Tài khoản
 
-| Biến | Vai trò (`roleCode`) | Họ tên | SĐT (= tên đăng nhập) | Mật khẩu | Số phòng |
+**a) Tài khoản có sẵn ở chế độ Demo** (tên đăng nhập = SĐT; mật khẩu chung `Demo@1234`, riêng `admin` là `Admin@123`):
+
+| Biến | Vai trò | Họ tên | SĐT | Số phòng | Ghi chú |
 |---|---|---|---|---|---|
-| `LETAN` | `RECEPTIONIST` | Nguyễn Thị Lan | `0910000001` | `Test@1234` | – |
-| `BS1` | `VETERINARIAN` | BS. Trần Văn An | `0910000002` | `Test@1234` | `P01` |
-| `BS2` | `VETERINARIAN` | BS. Lê Thị Bình | `0910000003` | `Test@1234` | `P02` |
-| `XN` | `LAB_TECHNICIAN` | KTV. Phạm Văn Xuân | `0910000004` | `Test@1234` | `XN01` |
-| `CDHA` | `IMAGING_TECHNICIAN` | KTV. Hoàng Thị Hà | `0910000005` | `Test@1234` | `CDHA01` |
-| `CHU_A` | `PET_OWNER` | Đỗ Minh Quân | `0920000001` | `Owner@1234` | – |
-| `CHU_B` | `PET_OWNER` | Vũ Thu Trang | `0920000002` | `Owner@1234` | – |
+| `ADMIN` | `ADMIN` | Quản trị viên hệ thống | `admin` | – | |
+| `LETAN` | `RECEPTIONIST` | Nguyễn Thị Lan | `0910000001` | – | Lễ tân / thu ngân chính |
+| `LETAN2` | `RECEPTIONIST` | Ngô Thanh Tâm | `0910000008` | – | |
+| `BS1` | `VETERINARIAN` | BS. Trần Văn An | `0910000002` | `P01` | Đang khám ca VIS-…-00012 (BUSY) |
+| `BS2` | `VETERINARIAN` | BS. Lê Thị Bình | `0910000003` | `P02` | Có ca đã đủ kết quả: Khóa ưu tiên tái khám |
+| `BS3` | `VETERINARIAN` | BS. Phạm Quốc Cường | `0910000006` | `P03` | Đang khám ca đã mở lại (BUSY) |
+| `BS4` | `VETERINARIAN` | BS. Đặng Thu Hương | `0910000007` | `P04` | **Rảnh**, dùng để demo phân công |
+| `BS5` | `VETERINARIAN` | BS. Võ Minh Tuấn | `0910000009` | `P05` | `INACTIVE` (không đăng nhập được, `AUTH_1108`) |
+| `XN` | `LAB_TECHNICIAN` | KTV. Phạm Văn Xuân | `0910000004` | `XN01` | |
+| `CDHA` | `IMAGING_TECHNICIAN` | KTV. Hoàng Thị Hà | `0910000005` | `CDHA01` | |
+| `CHU_A` | `PET_OWNER` | Đỗ Minh Quân | `0920000001` | – | 3 thú cưng: Lucky, Mimi, Xoài |
+| `CHU_B` | `PET_OWNER` | Vũ Thu Trang | `0920000002` | – | Bông, Kitty, Bống |
+| `CHU_C` | `PET_OWNER` | Nguyễn Hoàng Nam | `0920000003` | – | Rex, Miu, Cốm |
+| `CHU_D` | `PET_OWNER` | Trần Thị Mai | `0920000004` | – | Mực, Tom, Gấu |
+| `CHU_E` | `PET_OWNER` | Lê Văn Hùng | `0920000005` | – | Bơ, Nhím, Chip |
+| `CHU_F` | `PET_OWNER` | Phạm Ngọc Anh | `0920000006` | – | `LOCKED` (`AUTH_1107`), 1 thú cưng: Cún |
 
-Email gợi ý cho chủ nuôi (để test email): `chua@example.com`, `chub@example.com`.
+**b) Dữ liệu dùng cho các test TẠO MỚI** (mục 3.3, 3.6, 3.7). Dùng SĐT khác dải demo để không trùng. Ở chế độ Sạch thì có thể dùng luôn bảng (a) làm dữ liệu tạo mới.
+
+| Biến | Vai trò (`roleCode`) | Họ tên | SĐT | Mật khẩu | Số phòng |
+|---|---|---|---|---|---|
+| `NEW_LETAN` | `RECEPTIONIST` | Lý Thị Hồng | `0930000011` | `Test@1234` | – |
+| `NEW_BS` | `VETERINARIAN` | BS. Mai Văn Long | `0930000012` | `Test@1234` | `P11` |
+| `NEW_BS2` | `VETERINARIAN` | BS. Cao Thị Nga | `0930000013` | `Test@1234` | `P12` |
+| `NEW_XN` | `LAB_TECHNICIAN` | KTV. Đinh Văn Phúc | `0930000014` | `Test@1234` | `XN11` |
+| `NEW_CDHA` | `IMAGING_TECHNICIAN` | KTV. Tạ Thị Quỳnh | `0930000015` | `Test@1234` | `CDHA11` |
+| `NEW_CHU` | `PET_OWNER` (tự đăng ký) | Đỗ Minh Quân | `0930000001` | `Owner@1234` | – |
+| `NEW_CHU2` | `PET_OWNER` (lễ tân tạo) | Vũ Thu Trang | `0930000002` | `Owner@1234` | – |
+
+Email gợi ý để test thư xác nhận: `chua@example.com`, `chub@example.com` (xem ở Mailpit).
 
 ### 1.3. Thú cưng
 
+**Có sẵn ở chế độ Demo** (id dùng trong URL; các biến `{{...}}` ở những mục sau lấy theo bảng này):
+
+| Biến | id | Tên (loài) | Chủ | Đang ở trạng thái |
+|---|---|---|---|---|
+| `CHO_A` | 1 | Lucky (chó Golden) | CHU_A | Có đợt khám đang chờ (có hẹn đúng giờ) |
+| `MEO_A` | 2 | Mimi (mèo Anh) | CHU_A | Đợt khám **cấp cứu** đang chờ |
+| `CHO_B` | 3 | Bông (chó Poodle) | CHU_B | Đang chờ kết quả xét nghiệm và siêu âm |
+| – | 4 | Kitty (mèo Ba Tư) | CHU_B | Chờ thanh toán (hóa đơn 705.000đ, đơn thuốc chưa phát) |
+| – | 5 | Rex (chó Becgie) | CHU_C | Đang khám (BS1) |
+| – | 6 | Miu (mèo tam thể) | CHU_C | Đã đủ kết quả, chờ bác sĩ mời tái khám (BS2) |
+| – | 7 | Mực (chó Phú Quốc) | CHU_D | Chờ kết quả xét nghiệm sinh hóa và X-quang |
+| – | 8 | Tom (mèo mướp) | CHU_D | Ca đã mở lại, đang khám (BS3) |
+| `RANH_1` | 9 | Bơ (chó Corgi) | CHU_E | **Rảnh**, có lịch CONFIRMED hôm nay 16:30 để check-in |
+| – | 10 | Nhím (hamster) | CHU_E | Chờ thanh toán (100.000đ, không có đơn thuốc) |
+| – | 11 | Cốm (thỏ) | CHU_C | Đã thanh toán, chờ phát thuốc |
+| – | 12 | Xoài (chó Husky) | CHU_A | Đợt khám vãng lai đang chờ |
+| `RANH_2` | 13 | Bống (mèo Xiêm) | CHU_B | **Rảnh**, có lịch CONFIRMED hôm nay 16:00 để check-in |
+| – | 14 | Gấu (chó Samoyed) | CHU_D | Có hẹn nhưng đến trễ, đang chờ |
+| `RANH_3` | 15 | Cún (chó cỏ) | CHU_F (bị khóa) | Rảnh |
+| `RANH_4` | 16 | Chip (vẹt) | CHU_E | Rảnh, có lịch PENDING ngày mai |
+
+**Dùng cho test tạo mới (chế độ Sạch, hoặc tạo thêm ở chế độ Demo):**
+
 | Biến | Chủ | Dữ liệu |
 |---|---|---|
-| `CHO_A` | CHU_A | `speciesId:1, name:"Lucky", breed:"Golden Retriever", gender:"MALE", color:"Vàng", weight:28.5, neutered:true` |
-| `MEO_A` | CHU_A | `speciesId:2, name:"Mimi", breed:"Mèo Anh lông ngắn", gender:"FEMALE", color:"Xám", weight:4.2, neutered:false` |
-| `CHO_B` | CHU_B | `speciesId:1, name:"Bông", breed:"Poodle", gender:"FEMALE", color:"Trắng", weight:5.0, neutered:true` |
+| `NEW_CHO` | NEW_CHU | `speciesId:1, name:"Lucky", breed:"Golden Retriever", gender:"MALE", color:"Vàng", weight:28.5, neutered:true` |
+| `NEW_MEO` | NEW_CHU | `speciesId:2, name:"Mimi", breed:"Mèo Anh lông ngắn", gender:"FEMALE", color:"Xám", weight:4.2, neutered:false` |
+| `NEW_CHO_B` | NEW_CHU2 | `speciesId:1, name:"Bông", breed:"Poodle", gender:"FEMALE", color:"Trắng", weight:5.0, neutered:true` |
 
 ### 1.4. Bộ giá trị biên cho test lỗi
 
@@ -83,6 +137,30 @@ Email gợi ý cho chủ nuôi (để test email): `chua@example.com`, `chub@exa
 | Chỉ số xét nghiệm | `-1`, bỏ trống, chỉ số không thuộc dịch vụ |
 | Số lượng thuốc | `0`, `-1`, `10001` ; `durationDays`: `0`, `366` |
 | Ảnh CĐHA | File `.txt` đổi đuôi `.jpg`, file > 20 MB |
+
+### 1.5. Bản đồ dữ liệu Demo → use case (bấm thử ngay, không cần chuẩn bị)
+
+| Muốn demo | Đăng nhập | Dùng dữ liệu | Thao tác |
+|---|---|---|---|
+| Duyệt / từ chối lịch hẹn (UC-17) | `LETAN` | 4 lịch **PENDING** (hàng chờ duyệt) | Lịch hẹn → chờ duyệt → Duyệt, hoặc Từ chối kèm lý do; chủ nuôi nhận thông báo và email |
+| Check-in có hẹn (UC-19) | `LETAN` | Lịch **CONFIRMED hôm nay** của Bơ (16:30) và Bống (16:00) | Tiếp đón → chọn lịch → Check-in (lịch đã quá giờ sẽ bị hệ thống chuyển NO_SHOW sau 30 phút, nên dựng DB đúng ngày demo) |
+| Check-in vãng lai (UC-19) | `LETAN` | `RANH_3` Cún, `RANH_4` Chip | Tiếp đón → vãng lai; thử cả cờ cấp cứu |
+| Hàng đợi 3 bậc (UC-20) | `LETAN` | 4 ca WAITING: **cấp cứu** (Mimi) → **có hẹn đúng giờ** (Lucky) → vãng lai (Xoài) → đến trễ (Gấu) | Xem thứ tự hàng đợi |
+| Phân công bác sĩ (UC-21) | `LETAN` | Chỉ **BS4** rảnh; BS1, BS3 đang BUSY; BS2 có Khóa ưu tiên | Gán ca cấp cứu cho BS4; gán ca thứ hai cho BS4 → `CLIN_1302`; gán cho BS2 → `CLIN_1303` |
+| Khám, chỉ định, kê đơn, chốt ca (UC-22, 23, 31, 32) | `BS1` | Ca Rex (`IN_PROGRESS`, đã có khám + trị ve bọ chét) | Thêm dịch vụ, kê đơn, chốt ca |
+| Mời tái khám, Khóa ưu tiên (UC-28..30, EX-10) | `BS2` | Ca Miu `RESULTS_READY` | Mời tái khám hoặc tạm hoãn; popup đỏ kèm số phòng |
+| Mở lại ca (T12) | `ADMIN` | Ca Tom là ca đã mở lại (hóa đơn cũ `CANCELLED`) để xem kết quả. Muốn thử mở: chốt ca Rex hoặc Miu rồi mở khi chưa thu tiền | Đợt khám → Mở lại, bắt buộc lý do |
+| Hàng đợi xét nghiệm (UC-24, 25) | `XN` | CBC của Bông (`NEXT_IN_LINE`), sinh hóa của Mực (tab **Hoãn**) | Bắt đầu → nhập kết quả (khoảng tham chiếu theo **loài**); sinh hóa gồm ALT, CREA, GLU, BUN |
+| Hàng đợi CĐHA (UC-26, 27) | `CDHA` | Siêu âm Bông (chờ), X-quang Mực (đang làm) | Nhập mô tả, kết luận, tải ảnh |
+| Xem kết quả kèm ảnh, bệnh án (UC-38, 39) | `CHU_A`, `BS1` | Mimi, Bông, Rex, Kitty, Miu đều có siêu âm hoặc X-quang kèm ảnh mẫu | Hồ sơ → lịch sử khám; xem và tải ảnh |
+| Thu ngân (UC-33..35) | `LETAN` | 3 hóa đơn **PENDING**: ca Tom bỏ về (nợ 350.000), Kitty 705.000 (kèm đơn thuốc), Nhím 100.000 | Chiết khấu, thanh toán, hủy hóa đơn |
+| Phát thuốc (UC-36) | `LETAN` | Đơn của Cốm (đã thanh toán, chờ phát). Thanh toán hóa đơn Kitty thì đơn Kitty cũng vào hàng đợi; phát xong Oresol còn 3 → cảnh báo sắp hết gửi Admin | Phát thuốc → ca chuyển `COMPLETED` |
+| Khách bỏ về (EX-11) | `LETAN` | Xem ca Tom trước đó: `COMPLETED`, hóa đơn nợ `PENDING`, đơn thuốc `CANCELLED`. Muốn thử mới: ca Miu `RESULTS_READY` → `abandon` | |
+| Quản lý người dùng | `ADMIN` | 16 tài khoản gồm `INACTIVE` (BS5) và `LOCKED` (CHU_F) | Mở khóa, đổi vai trò, đặt lại mật khẩu |
+| Danh mục dịch vụ, chỉ số xét nghiệm | `ADMIN` | 14 dịch vụ đủ 9 nhóm (IMG_CT đã ngừng), 8 chỉ số, 5 loài | Sửa giá, bật/tắt, thêm khoảng tham chiếu |
+| Kho thuốc | `ADMIN` | 9 thuốc: Oresol tồn 8 (sắp hết), Metronidazole đã ngừng kinh doanh; nhật ký 19 giao dịch | Nhập kho, cân chỉnh, xem nhật ký |
+| Báo cáo | `ADMIN` | Doanh thu 7 hóa đơn đã thu (3.210.000đ) trong 14 ngày; 20 đợt khám; 17 lịch hẹn | Doanh thu theo ngày/tuần/tháng, vận hành, tỉ lệ vắng mặt và hủy |
+| Đặt lịch của chủ nuôi (UC-14) | `CHU_E` | Bơ (rảnh); ngày mai đã có lịch ở khung 09:00 và 13:30 | Đặt lịch, đổi giờ, hủy (cách giờ hẹn < 2 giờ bị chặn) |
 
 ---
 
@@ -134,7 +212,7 @@ Lưu `accessToken` thành `{{token_admin}}`, `{{token_letan}}`, ... cho các bư
 
 | # | Dữ liệu vào | Mong đợi |
 |---|---|---|
-| 3.3.1 | `{"fullName":"Đỗ Minh Quân","phoneNumber":"0920000001","password":"Owner@1234","email":"chua@example.com","address":"12 Lê Lợi, Hà Nội"}` | 201, vai trò `PET_OWNER`, `ACTIVE`, tên đăng nhập = SĐT |
+| 3.3.1 | `{"fullName":"Đỗ Minh Quân","phoneNumber":"0930000001","password":"Owner@1234","email":"chua@example.com","address":"12 Lê Lợi, Hà Nội"}` | 201, vai trò `PET_OWNER`, `ACTIVE`, tên đăng nhập = SĐT |
 | 3.3.2 | Cùng body, thêm `"roleCode":"ADMIN","username":"hacker"` | 201 nhưng vẫn là `PET_OWNER`, tên đăng nhập = SĐT (hai trường thừa bị bỏ qua) |
 | 3.3.3 | Đăng ký lại cùng SĐT | 409 `AUTH_1102` |
 | 3.3.4 | SĐT/mật khẩu/email sai định dạng (mục 1.4) | 400 `SYS_1001` |
@@ -144,41 +222,41 @@ Lưu `accessToken` thành `{{token_admin}}`, `{{token_letan}}`, ... cho các bư
 | # | API | Dữ liệu | Mong đợi |
 |---|---|---|---|
 | 3.4.1 | `GET /me` (mọi vai trò) | – | 200, thông tin của chính mình |
-| 3.4.2 | `PUT /me` | `{"fullName":"Đỗ Minh Quân","phoneNumber":"0920000001","email":"quan.new@example.com","address":"34 Hai Bà Trưng"}` | 200, dữ liệu đã đổi |
+| 3.4.2 | `PUT /me` (bằng `NEW_CHU`) | `{"fullName":"Đỗ Minh Quân","phoneNumber":"0930000001","email":"quan.new@example.com","address":"34 Hai Bà Trưng"}` | 200, dữ liệu đã đổi |
 | 3.4.3 | `PUT /me` | `{"phoneNumber":"123"}` | 400 `SYS_1001` |
 
 ### 3.5. Đổi mật khẩu — `POST /api/v1/auth/change-password`
 
 | # | Dữ liệu vào | Mong đợi |
 |---|---|---|
-| 3.5.1 | `{"currentPassword":"Owner@1234","newPassword":"Owner@5678"}` | 200; **mọi refresh token cũ bị thu hồi**; đăng nhập bằng mật khẩu cũ thất bại, mật khẩu mới thành công |
+| 3.5.1 | `{"currentPassword":"Owner@1234","newPassword":"Owner@5678"}` (bằng `NEW_CHU`) | 200; **mọi refresh token cũ bị thu hồi**; đăng nhập bằng mật khẩu cũ thất bại, mật khẩu mới thành công |
 | 3.5.2 | `currentPassword` sai | 400 `AUTH_1111`, mật khẩu không đổi |
 | 3.5.3 | `newPassword` = `abcdefgh` | 400 `SYS_1001` |
 
-Sau bước này đổi lại về `Owner@1234` để dùng cho các mục sau.
+Sau bước này đổi lại về `Owner@1234`. Làm bằng `NEW_CHU`, không dùng tài khoản demo để khỏi đổi mật khẩu chung.
 
 ### 3.6. Lễ tân tạo / tìm tài khoản chủ nuôi — `POST|GET /api/v1/auth/users`
 
 | # | Vai trò | API + dữ liệu | Mong đợi |
 |---|---|---|---|
-| 3.6.1 | LETAN | `POST /users` `{"fullName":"Vũ Thu Trang","phoneNumber":"0920000002","password":"Owner@1234","email":"chub@example.com","roleCode":"PET_OWNER"}` | 201; `username` bỏ trống → = SĐT |
+| 3.6.1 | LETAN | `POST /users` `{"fullName":"Vũ Thu Trang","phoneNumber":"0930000002","password":"Owner@1234","email":"chub@example.com","roleCode":"PET_OWNER"}` | 201; `username` bỏ trống → = SĐT |
 | 3.6.2 | LETAN | `POST /users` với `"roleCode":"VETERINARIAN"` | Bị từ chối (lễ tân chỉ tạo được `PET_OWNER`) |
-| 3.6.3 | LETAN | `GET /users?keyword=0920` | 200, chỉ thấy `PET_OWNER` (ép lọc), không thấy nhân sự |
+| 3.6.3 | LETAN | `GET /users?keyword=0920` (chế độ Demo: thấy 6 chủ nuôi) | 200, chỉ thấy `PET_OWNER` (ép lọc), không thấy nhân sự |
 | 3.6.4 | CHU_A | `GET /users` | 403 |
 
 ### 3.7. Admin tạo nhân sự — `POST /api/v1/auth/users`
 
-Gọi bằng `{{token_admin}}`, mỗi dòng trong bảng mục 1.2. Ví dụ bác sĩ 1:
+Gọi bằng `{{token_admin}}`, mỗi dòng `NEW_*` trong bảng mục 1.2(b). Ví dụ bác sĩ:
 
 ```json
-{ "fullName": "BS. Trần Văn An", "phoneNumber": "0910000002", "password": "Test@1234",
-  "email": "bs1@vetclinic.com", "roleCode": "VETERINARIAN", "roomNumber": "P01" }
+{ "fullName": "BS. Mai Văn Long", "phoneNumber": "0930000012", "password": "Test@1234",
+  "email": "long.mai@vetclinic.com", "roleCode": "VETERINARIAN", "roomNumber": "P11" }
 ```
 
 | # | Kiểm tra | Mong đợi |
 |---|---|---|
-| 3.7.1 | Tạo đủ 5 nhân sự (LETAN, BS1, BS2, XN, CDHA) | 201 cho từng tài khoản |
-| 3.7.2 | Tạo tài khoản thứ hai với `roomNumber:"P01"` | 409 `AUTH_1113` (số phòng là duy nhất) |
+| 3.7.1 | Tạo đủ 5 nhân sự `NEW_*` (lễ tân, 2 bác sĩ, KTV xét nghiệm, KTV CĐHA) | 201 cho từng tài khoản |
+| 3.7.2 | Tạo tài khoản mới với `roomNumber:"P01"` (đã gán cho `BS1` ở chế độ Demo; chế độ Sạch thì tạo hai lần với cùng số phòng) | 409 `AUTH_1113` (số phòng là duy nhất) |
 | 3.7.3 | `roomNumber:"P 01!"` | 400 (chỉ chữ, số, `_`, `-`, tối đa 20 ký tự) |
 | 3.7.4 | `GET /users/doctors` (ADMIN, LETAN) | 200, danh sách bác sĩ `ACTIVE` |
 | 3.7.5 | `GET /users/{id}` bằng BS1 (id của người khác) | 200 (nhân sự y tế được xem); CHU_A gọi → 403 |
@@ -259,6 +337,8 @@ Gọi bằng `{{token_admin}}`, mỗi dòng trong bảng mục 1.2. Ví dụ bá
 ---
 
 ## 5. Thú cưng & đặt lịch hẹn
+
+> **Chế độ Demo:** `CHO_A`, `MEO_A`, `CHO_B` đã có đợt khám đang mở, và Lucky đã có lịch hôm nay. Khi cần thú cưng "rảnh" để đặt lịch hoặc check-in, dùng `RANH_1..RANH_4` (mục 1.3), hoặc tạo thú cưng mới bằng `NEW_CHU`. Các test báo lỗi trùng (ví dụ 5.3.3, 6.1.4) có thể làm ngay trên dữ liệu có sẵn.
 
 ### 5.1. Khung giờ — `GET /api/v1/appointments/slots?date={{NGAY_MAI}}`
 
@@ -343,7 +423,7 @@ Gửi **8 request song song** `POST /appointments` (8 thú cưng khác nhau) và
 
 ## 6. Tiếp đón & khám bệnh (clinical-service)
 
-> Điều kiện chạy mục này: có BS1, BS2 `ACTIVE`; `CHO_A`, `MEO_A`, `CHO_B` đã tạo.
+> Điều kiện chạy mục này: có BS1, BS2 `ACTIVE`; thú cưng đã tạo. **Chế độ Demo:** Lucky, Mimi, Bông đã có đợt khám đang mở nên thay vào đó dùng `RANH_1..RANH_4` (Bơ, Bống, Cún, Chip) cho check-in mới, hoặc làm tiếp trên các ca có sẵn theo bản đồ ở mục 1.5.
 > Check-in lịch hẹn chỉ nhận lịch `CONFIRMED` **đúng ngày hôm nay**. Để test, đặt lịch cho hôm nay ở khung chưa qua giờ (trong giờ làm việc), hoặc dùng khách vãng lai.
 
 ### 6.1. Check-in (UC-19) — `POST /api/v1/clinical/pet-visits/check-in`
@@ -637,7 +717,8 @@ Kịch bản biến thể: lặp lại với (a) **khách vãng lai + cấp cứ
 | `cd fe && npm test` | Lớp API, STOMP, định dạng | 22 |
 | `node e2e/fe_smoke.mjs` | Một ca khám trọn vẹn trên giao diện Chrome thật, 6 vai trò | 50 |
 
-> **Cảnh báo:** các kịch bản e2e **xóa dữ liệu nghiệp vụ** (mọi người dùng trừ `admin`). Chạy xong thì dữ liệu test thủ công ở trên bị mất; nếu muốn test thủ công thì chạy `bash e2e/reset_data.sh` rồi tạo lại tài khoản theo mục 1.2.
+> **Cảnh báo:** các kịch bản e2e tự gọi `e2e/reset_data.sh` nên **xóa luôn dữ liệu demo** và
+> **xóa dữ liệu nghiệp vụ** (mọi người dùng trừ `admin`). Chạy xong thì dữ liệu test thủ công ở trên bị mất; nếu muốn test thủ công thì chạy `bash e2e/reset_data.sh` rồi tạo lại tài khoản theo mục 1.2.
 
 ---
 

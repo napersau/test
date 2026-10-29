@@ -94,6 +94,7 @@ BDB, CDB, ADB = "pet_clinic_billing_pharmacy_db", "pet_clinic_clinical_db", "pet
 V = "/api/v1/clinical/pet-visits"
 
 print("== Don du lieu thu nghiem cu ==")
+subprocess.run(["bash", os.path.join(os.path.dirname(os.path.abspath(__file__)), "reset_data.sh")], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 sql(f"DELETE FROM {BDB}.inventory_transactions; DELETE FROM {BDB}.invoice_items; DELETE FROM {BDB}.invoices; DELETE FROM {BDB}.prescription_items; DELETE FROM {BDB}.prescriptions;"
     f"UPDATE {BDB}.medicines SET stock_quantity=200 WHERE code='MED_AMOX';"
     f"DELETE FROM {CDB}.imaging_attachments; DELETE FROM {CDB}.imaging_results; DELETE FROM {CDB}.lab_test_results; DELETE FROM {CDB}.visit_service_detail_histories; DELETE FROM {CDB}.visit_service_details; DELETE FROM {CDB}.pet_visit_status_histories; DELETE FROM {CDB}.pet_visits; DELETE FROM {CDB}.pets;"

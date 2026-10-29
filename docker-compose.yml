@@ -172,6 +172,8 @@ services:
       IMAGING_DIR: /app/uploads/imaging
     volumes:
       - imaging-data:/app/uploads/imaging
+      # Ảnh CĐHA mẫu cho dữ liệu demo trong schema_init.sql (file_url = seed/...); chỉ đọc
+      - ./docs/demo-images:/app/uploads/imaging/seed:ro
     depends_on: *depends-on-infra
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8083/actuator/health"]

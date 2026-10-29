@@ -44,5 +44,6 @@ Script tự tạo 4 tài khoản nhân sự (`0990000001..4`, mật khẩu `Smok
 - `features.py` thay đổi cấu hình xét nghiệm (thêm chỉ số HCT, đổi chỉ số của dịch vụ CBC). Nó tự dọn ở đầu lần chạy sau, nhưng nếu
   chạy `clinical.sh` ngay sau đó thì trước hết đặt lại: `docker compose down -v && docker compose up -d` hoặc chạy lại `features.py`.
 - Lịch sử thông báo của notification-service nằm trong bộ nhớ nên còn lại giữa các lần chạy; `notification.py` đã lọc theo thời điểm chạy.
-- `bash e2e/reset_data.sh` đưa dữ liệu về sạch (chỉ còn `admin` và dữ liệu mẫu) mà không cần dựng lại DB.
+- `bash e2e/reset_data.sh` đưa dữ liệu về sạch (chỉ còn `admin` và danh mục gốc: 2 loài, 7 dịch vụ, 4 thuốc, 4 chỉ số) mà không cần dựng lại DB.
+  Lệnh này **xóa cả dữ liệu demo** của `docs/schema_init.sql` PHẦN 5; mỗi kịch bản e2e tự gọi nó ở đầu. Muốn có lại dữ liệu demo: `docker compose down -v && docker compose up -d`.
 - Đầu ra tạm ghi vào `e2e/.tmp/` (bị bỏ qua khi commit).

@@ -34,6 +34,7 @@ slot() { # token date HH:MM:SS field
 }
 
 echo "== Don du lieu thu nghiem cu =="
+bash "$(dirname "$0")/reset_data.sh" >/dev/null 2>&1
 sql "DELETE FROM pet_clinic_appointment_db.appointment_status_histories; DELETE FROM pet_clinic_appointment_db.appointments; ALTER TABLE pet_clinic_appointment_db.appointments AUTO_INCREMENT = 1; DELETE FROM pet_clinic_auth_db.refresh_tokens; DELETE FROM pet_clinic_auth_db.users WHERE id > 1; ALTER TABLE pet_clinic_auth_db.users AUTO_INCREMENT = 2;"
 
 # DLQ là hàng đợi bền vững: dọn tin của các lần chạy trước để phép đếm ở mục J chính xác
